@@ -39,7 +39,7 @@ def StartUp():
     except:
         print("连接服务器失败,退出")
         time.sleep(1)
-        os._exit()
+        os._exit(0)
 
 
 def GetMsg():
@@ -50,14 +50,14 @@ def GetMsg():
         try:
             r = s.get(homepage + "/msg")
             if r.text == "对局已结束请关闭窗口":
-                os._exit()
+                os._exit(0)
             elif r.text != MsgCache:
                 print(r.text + "\n>>>  ", end='')
             MsgCache = r.text
             time.sleep(0.3)
         except:
             print("连接服务器失败,退出")
-            os._exit()
+            os._exit(0)
 
 
 def Do(cmdpath):
