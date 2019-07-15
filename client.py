@@ -3,6 +3,7 @@
 # @Date: 2019-07-15 22:43:47
 import threading
 import time
+import os
 
 import requests
 
@@ -38,7 +39,7 @@ def StartUp():
     except:
         print("连接服务器失败,退出")
         time.sleep(1)
-        exit()
+        os._exit()
 
 
 def GetMsg():
@@ -49,15 +50,14 @@ def GetMsg():
         try:
             r = s.get(homepage + "/msg")
             if r.text == "对局已结束请关闭窗口":
-                exit()
+                os._exit()
             elif r.text != MsgCache:
                 print(r.text + "\n>>>  ", end='')
-
             MsgCache = r.text
-            time.sleep(0.2)
+            time.sleep(0.3)
         except:
             print("连接服务器失败,退出")
-            exit()
+            os._exit()
 
 
 def Do(cmdpath):
