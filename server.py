@@ -12,7 +12,7 @@ Cards = []
 Players = []
 Count = 0
 Num = 0
-Turn = "▼"
+Turn = "→"
 MsgCache = "暂无公共消息"
 LogCount = 1
 
@@ -200,7 +200,7 @@ def Hand():
         cache = ""
         cache = cache + (Turn + " ")
         for i in Players:
-            cache = cache + ("|" + i.token + i.id)
+            cache = cache + ("|" + i.token + i.id + i.side)
         cache = "顺序:" + cache + "  你的ID为:  " + id + "\n你的阵营是:  " + str(
             side) + "  存活与否:  " + str(status) + "  当前累计: " + str(
                 Num) + "\n>>>  手牌:  " + str(hand)
@@ -286,10 +286,10 @@ def CTurn():
     global Players
     global MsgCache
     global LogCount
-    if Turn == "▼":
-        Turn = "▲"
-    elif Turn == "▲":
-        Turn = "▼"
+    if Turn == "→":
+        Turn = "←"
+    elif Turn == "←":
+        Turn = "→"
     MsgCache = "" + str(LogCount)
     LogCount = LogCount + 1
     MsgCache = MsgCache + (Turn + "\n")
