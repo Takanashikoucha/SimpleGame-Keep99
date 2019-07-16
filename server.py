@@ -386,7 +386,7 @@ def Down():
 
 
 @app.route("/up")
-def Up(id):
+def Up():
     global Players
     global MsgCache
     global LogCount
