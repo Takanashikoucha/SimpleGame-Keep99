@@ -98,14 +98,16 @@ def EndGame():
     global Num
     global Turn
     global MsgCache
+    global LogCount
     Status = 0
     Cards = []
     Players = []
     Count = 0
     Num = 0
     Turn = "▼"
+    LogCount = 1
     MsgCache = "对局已结束请关闭窗口"
-    time.sleep(1)
+    time.sleep(0.5)
     MsgCache = "暂无公共消息"
 
 
@@ -165,7 +167,7 @@ def Start():
     global MsgCache
     if Status == 0:
         StartGame()
-        return "--------------------------------"
+        return ""
     else:
         return "已经有对局正在进行中"
 
@@ -177,7 +179,7 @@ def End():
     if Status == 1:
         EndGame()
         time.sleep(0.2)
-        return "--------------------------------"
+        return ""
     else:
         return "没有对局正在进行中"
 
@@ -216,7 +218,7 @@ def Add(num):
     MsgCache = "" + str(LogCount)
     LogCount = LogCount + 1
     MsgCache = MsgCache + "数字已变为:  " + str(Num)
-    return "--------------------------------"
+    return ""
 
 
 @app.route("/=/<num>")
@@ -228,7 +230,7 @@ def Nto(num):
     MsgCache = "" + str(LogCount)
     LogCount = LogCount + 1
     MsgCache = MsgCache + "数字已变为:  " + str(Num)
-    return "--------------------------------"
+    return ""
 
 
 @app.route("/put/<cardid>")
@@ -256,7 +258,7 @@ def Put(cardid):
     LogCount = LogCount + 1
     MsgCache = MsgCache + "玩家  " + player.username + "  丢出一张  " + str(cardnum)
     del hand[int(cardid) - 1]
-    return "--------------------------------"
+    return ""
 
 
 @app.route("/all/<playerid>")
@@ -275,7 +277,7 @@ def All(playerid):
     MsgCache = "" + str(LogCount)
     LogCount = LogCount + 1
     MsgCache = MsgCache + "已交换玩家手牌:" + player1.username + "  " + player2.username
-    return "--------------------------------"
+    return ""
 
 
 @app.route("/turn")
@@ -295,7 +297,7 @@ def CTurn():
         MsgCache = MsgCache + (">>>  " + i.token + "  " + i.username + "  " +
                                i.id + "\n")
     MsgCache = MsgCache + ">>>  顺序转变"
-    return "--------------------------------"
+    return ""
 
 
 @app.route("/to/<playerid>")
@@ -318,7 +320,7 @@ def To(playerid):
         MsgCache = MsgCache + (">>>  " + i.token + "  " + i.username + "  " +
                                i.id + "\n")
     MsgCache = MsgCache + ">>>  轮到*玩家进行"
-    return "--------------------------------"
+    return ""
 
 
 @app.route("/get/<target>")
@@ -351,11 +353,12 @@ def Get(target):
     return "从牌组得到一张牌,请确认它是什么"
 
 
-@app.route("/clean/<id>")
-def Clean(id):
+@app.route("/clean")
+def Clean():
     global Players
     global MsgCache
     global LogCount
+    id = session["id"]
     for i in Players:
         if i.id == id:
             player = i
@@ -366,27 +369,28 @@ def Clean(id):
     return "牌已全部丢弃"
 
 
-@app.route("/down/<id>")
-def Down(id):
+@app.route("/down")
+def Down():
     global Players
     global MsgCache
     global LogCount
+    id = session["id"]
     for i in Players:
         if i.id == id:
             player = i
     player.Down()
-    Clean(id)
     MsgCache = "" + str(LogCount)
     LogCount = LogCount + 1
     MsgCache = MsgCache + "玩家  " + player.username + "  已死亡"
-    return "--------------------------------"
+    return ""
 
 
-@app.route("/up/<id>")
+@app.route("/up")
 def Up(id):
     global Players
     global MsgCache
     global LogCount
+    id = session["id"]
     for i in Players:
         if i.id == id:
             player = i
@@ -397,7 +401,7 @@ def Up(id):
     MsgCache = "" + str(LogCount)
     LogCount = LogCount + 1
     MsgCache = MsgCache + "玩家  " + player.username + "  已复活"
-    return "--------------------------------"
+    return ""
 
 
 app.secret_key = 'WDNMDzTMDjiubaigeiA'

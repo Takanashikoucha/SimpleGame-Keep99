@@ -110,6 +110,10 @@ def Get():
     global homepage
     global MsgCache
     v = Enter.get()
+    if v[0] != "-":
+        v = "c"
+    else:
+        v = v[1:]
     try:
         r = s.get(homepage + "/get/" + v)
         Insertlog(r.text)
@@ -204,7 +208,7 @@ def Up():
 
 ##根窗口
 root = tkinter.Tk()
-root.geometry("330x415+300+300")
+root.geometry("330x440+300+300")
 root.resizable(False, False)
 root.title("Keep99")
 
