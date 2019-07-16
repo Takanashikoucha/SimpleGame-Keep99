@@ -14,6 +14,7 @@ Count = 0
 Num = 0
 Turn = "▼"
 MsgCache = "暂无公共消息"
+LogCount = 1
 
 
 class Player:
@@ -60,7 +61,9 @@ def GiveCard(playerid):
     global Cards
     global Players
     global Count
-    player = Players[int(playerid)]
+    for i in Players:
+        if i.id == playerid:
+            player = i
     player.inhand.append(Cards[Count])
     Count = Count + 1
 
@@ -70,13 +73,15 @@ def StartGame():
     global Turn
     global Players
     global MsgCache
+    global LogCount
     GenCards()
     GenPlayers()
     for i in range(5):
         for i in Players:
             GiveCard(i.id)
     Status = 1
-    MsgCache = ""
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
     MsgCache = MsgCache + (Turn + "\n")
     Players[0].token = "*"
     for i in Players:
@@ -100,7 +105,7 @@ def EndGame():
     Num = 0
     Turn = "▼"
     MsgCache = "对局已结束请关闭窗口"
-    time.sleep(5)
+    time.sleep(1)
     MsgCache = "暂无公共消息"
 
 
@@ -136,6 +141,7 @@ def error500(e):
 def Login(username):
     global Players
     global MsgCache
+    global LogCount
     for i in Players:
         if username in i.username:
             return "有重名用户"
@@ -147,7 +153,9 @@ def Login(username):
     id = len(Players)
     session["id"] = str(id)
     Players.append(Player(username, str(id)))
-    MsgCache = "新玩家 %s 登录" % username
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
+    MsgCache = MsgCache + "新玩家 %s 登录" % username
     return "已登录为:  %s,ID: %s" % (username, str(id))
 
 
@@ -177,28 +185,76 @@ def End():
 @app.route("/hand")
 def Hand():
     global Players
-    id = session["id"]
-    for i in Players:
-        if i.id == id:
-            player = i
-    side = player.side
-    status = player.status
-    hand = player.inhand
-    return "你的阵营是:  " + str(side) + "  存活与否:  " + str(
-        status) + "\n>>>  手牌:  " + str(hand)
+    global Turn
+    global Num
+    try:
+        id = session["id"]
+        for i in Players:
+            if i.id == id:
+                player = i
+        side = player.side
+        status = player.status
+        hand = player.inhand
+        cache = ""
+        cache = cache + (Turn + " ")
+        for i in Players:
+            cache = cache + ("|" + i.token + i.id)
+        cache = "顺序:" + cache + "  你的ID为:  " + id + "\n你的阵营是:  " + str(
+            side) + "  存活与否:  " + str(status) + "  当前累计: " + str(
+                Num) + "\n>>>  手牌:  " + str(hand)
+        return cache
+    except:
+        return ""
+
+
+@app.route("/+/<num>")
+def Add(num):
+    global Num
+    global MsgCache
+    global LogCount
+    Num = Num + int(num)
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
+    MsgCache = MsgCache + "数字已变为:  " + str(Num)
+    return "--------------------------------"
+
+
+@app.route("/=/<num>")
+def Nto(num):
+    global Num
+    global MsgCache
+    global LogCount
+    Num = int(num)
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
+    MsgCache = MsgCache + "数字已变为:  " + str(Num)
+    return "--------------------------------"
 
 
 @app.route("/put/<cardid>")
 def Put(cardid):
     global Players
     global MsgCache
+    global LogCount
     id = session["id"]
     for i in Players:
         if i.id == id:
             player = i
     hand = player.inhand
-    MsgCache = "玩家  " + player.username + "  丢出一张  " + str(
-        hand[int(cardid) - 1])
+    cardnum = hand[int(cardid) - 1]
+    if cardnum == 2:
+        Add("2")
+    if cardnum == 3:
+        Add("3")
+    if cardnum == 6:
+        Add("6")
+    if cardnum == 8:
+        Add("8")
+    if cardnum == 9:
+        Add("9")
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
+    MsgCache = MsgCache + "玩家  " + player.username + "  丢出一张  " + str(cardnum)
     del hand[int(cardid) - 1]
     return "--------------------------------"
 
@@ -207,6 +263,7 @@ def Put(cardid):
 def All(playerid):
     global Players
     global MsgCache
+    global LogCount
     id = session["id"]
     for i in Players:
         if i.id == id:
@@ -215,34 +272,9 @@ def All(playerid):
         if i.id == playerid:
             player2 = i
     player1.inhand, player2.inhand = player2.inhand, player1.inhand
-    MsgCache = "已交换玩家手牌:" + player1.username + "  " + player2.username
-    return "--------------------------------"
-
-
-@app.route("/+/<num>")
-def Add(num):
-    global Num
-    global MsgCache
-    Num = Num + int(num)
-    MsgCache = "数字已变为:  " + str(Num)
-    return "--------------------------------"
-
-
-@app.route("/-/<num>")
-def Less(num):
-    global Num
-    global MsgCache
-    Num = Num - int(num)
-    MsgCache = "数字已变为:  " + str(Num)
-    return "--------------------------------"
-
-
-@app.route("/=/<num>")
-def Nto(num):
-    global Num
-    global MsgCache
-    Num = int(num)
-    MsgCache = "数字已变为:  " + str(Num)
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
+    MsgCache = MsgCache + "已交换玩家手牌:" + player1.username + "  " + player2.username
     return "--------------------------------"
 
 
@@ -251,11 +283,13 @@ def CTurn():
     global Turn
     global Players
     global MsgCache
+    global LogCount
     if Turn == "▼":
         Turn = "▲"
     elif Turn == "▲":
         Turn = "▼"
-    MsgCache = ""
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
     MsgCache = MsgCache + (Turn + "\n")
     for i in Players:
         MsgCache = MsgCache + (">>>  " + i.token + "  " + i.username + "  " +
@@ -269,6 +303,7 @@ def To(playerid):
     global Turn
     global Players
     global MsgCache
+    global LogCount
     print(Turn)
     for i in Players:
         if i.id == playerid:
@@ -276,7 +311,8 @@ def To(playerid):
     for i in Players:
         i.token = "="
     player.token = "*"
-    MsgCache = ""
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
     MsgCache = MsgCache + (Turn + "\n")
     for i in Players:
         MsgCache = MsgCache + (">>>  " + i.token + "  " + i.username + "  " +
@@ -289,12 +325,15 @@ def To(playerid):
 def Get(target):
     global Players
     global MsgCache
+    global LogCount
     if target == "c":
         id = session["id"]
         for i in Players:
             if i.id == id:
                 GiveCard(id)
-                MsgCache = "玩家  " + i.username + "  获得一张牌"
+                MsgCache = "" + str(LogCount)
+                LogCount = LogCount + 1
+                MsgCache = MsgCache + "玩家  " + i.username + "  获得一张牌"
     else:
         id = session["id"]
         for i in Players:
@@ -306,20 +345,24 @@ def Get(target):
         card = player2.inhand[0]
         del player2.inhand[0]
         player1.inhand.append(card)
-        MsgCache = "玩家 " + player1.username + " 获得一张牌"
+        MsgCache = "" + str(LogCount)
+        LogCount = LogCount + 1
+        MsgCache = MsgCache + "玩家 " + player1.username + " 获得一张牌"
     return "从牌组得到一张牌,请确认它是什么"
 
 
-@app.route("/clean")
-def Clean():
+@app.route("/clean/<id>")
+def Clean(id):
     global Players
     global MsgCache
-    id = session["id"]
+    global LogCount
     for i in Players:
         if i.id == id:
             player = i
     player.inhand = []
-    MsgCache = "玩家  " + player.username + "  丢弃了所有手牌"
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
+    MsgCache = MsgCache + "玩家  " + player.username + "  丢弃了所有手牌"
     return "牌已全部丢弃"
 
 
@@ -327,11 +370,15 @@ def Clean():
 def Down(id):
     global Players
     global MsgCache
+    global LogCount
     for i in Players:
         if i.id == id:
             player = i
     player.Down()
-    MsgCache = "玩家  " + player.username + "  已死亡"
+    Clean(id)
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
+    MsgCache = MsgCache + "玩家  " + player.username + "  已死亡"
     return "--------------------------------"
 
 
@@ -339,11 +386,17 @@ def Down(id):
 def Up(id):
     global Players
     global MsgCache
+    global LogCount
     for i in Players:
         if i.id == id:
             player = i
     player.Up()
-    MsgCache = "玩家  " + player.username + "  已复活"
+    GiveCard(player.id)
+    GiveCard(player.id)
+    GiveCard(player.id)
+    MsgCache = "" + str(LogCount)
+    LogCount = LogCount + 1
+    MsgCache = MsgCache + "玩家  " + player.username + "  已复活"
     return "--------------------------------"
 
 
