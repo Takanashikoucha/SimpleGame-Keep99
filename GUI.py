@@ -172,9 +172,8 @@ def Clean():
     global s
     global homepage
     global MsgCache
-    v = Enter.get()
     try:
-        r = s.get(homepage + "/clean/" + v)
+        r = s.get(homepage + "/clean")
         Insertlog(r.text)
     except:
         Insertlog("怕是有病病")
@@ -184,9 +183,8 @@ def Down():
     global s
     global homepage
     global MsgCache
-    v = Enter.get()
     try:
-        r = s.get(homepage + "/down/" + v)
+        r = s.get(homepage + "/down")
         Insertlog(r.text)
     except:
         Insertlog("怕是有病病")
@@ -196,9 +194,8 @@ def Up():
     global s
     global homepage
     global MsgCache
-    v = Enter.get()
     try:
-        r = s.get(homepage + "/up/" + v)
+        r = s.get(homepage + "/up")
         Insertlog(r.text)
     except:
         Insertlog("怕是有病病")
