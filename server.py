@@ -104,7 +104,7 @@ def EndGame():
     Players = []
     Count = 0
     Num = 0
-    Turn = "▼"
+    Turn = "→"
     LogCount = 1
     MsgCache = "对局已结束请关闭窗口"
     time.sleep(0.5)
